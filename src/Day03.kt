@@ -1,10 +1,10 @@
 fun main() {
     fun part1(input: List<String>): Int {
-        return input.map { findCommonItem(it) }.sumOf { convertToInt(it) }
+        return input.map { findCommonItem(it) }.sumOf { calculatePriority(it) }
     }
 
     fun part2(input: List<String>): Int {
-        return 1
+        return input.chunked(3).map { findBadge(Triple(it[0], it[1], it[2])) }.sumOf { calculatePriority(it) }
     }
 
     val input = readInput("Day03")
@@ -19,7 +19,12 @@ fun findCommonItem(rucksack: String) : Char {
     return compartments[0].filter { compartments[1].contains(it) }.toCharArray()[0]
 }
 
-fun convertToInt(theChar: Char): Int {
+fun findBadge(rucksacks: Triple<String, String, String>): Char {
+    // Should only be one item (the "badge") shared by all three elves.
+    return rucksacks.first.filter { rucksacks.second.contains(it) }.filter { rucksacks.third.contains(it) }.toCharArray()[0]
+}
+
+fun calculatePriority(theChar: Char): Int {
     if (theChar.isLowerCase()) {
         return theChar.code - ('a'.code-1)
     }
