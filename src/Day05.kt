@@ -4,27 +4,10 @@ typealias MoveInstruction = Triple<Int, Int, Int>
 
 fun main() {
     fun part1(input: List<String>): List<String> {
-        val stackRows = Array(8) { listOf<Pair<Char, Int>>() }
+        val (stackInput, moveInput) = obtainInputs(input)
+        val stacks = obtainStacks(stackInput)
 
-        for (i in 0 until 8) {
-            stackRows[i] = parseStackRow(input[i])
-        }
-
-        val stacks = Array(9) { Stack<String>() }
-
-        stackRows.reverse()
-
-        stackRows.forEach {
-            it.forEach { pair ->
-                stacks[pair.second-1].push(pair.first.toString())
-            }
-        }
-
-        val movesOnlyInput = input.drop(10) // Drop the first 10 lines containing the stacks
-
-        val moves = parseMoves(movesOnlyInput)
-
-        moves.forEach {
+        parseMoves(moveInput).forEach {
             for (i in 0 until it.first) {
                 val toMove = stacks[it.second-1].pop()
                 stacks[it.third-1].push(toMove)
@@ -34,13 +17,44 @@ fun main() {
         return stacks.map { it.pop() }
     }
 
-    fun part2(input: List<String>): Int {
-        return 1
+    fun part2(input: List<String>): List<String> {
+        val (stackInput, moveInput) = obtainInputs(input)
+        val stacks = obtainStacks(stackInput)
+
+        parseMoves(moveInput).forEach { move ->
+            val toMove = (0 until move.first).map { stacks[move.second-1].pop() }
+            toMove.reversed().forEach { element ->
+                stacks[move.third-1].push(element)
+            }
+        }
+
+        return stacks.map { it.pop() }
     }
 
     val input = readInput("Day05")
     println(part1(input))
     println(part2(input))
+}
+
+fun obtainInputs(input: List<String>): Pair<List<String>, List<String>> {
+    var currentIndex = 0
+    while (input[currentIndex] != "") {
+        currentIndex++
+    }
+
+    return Pair(input.subList(0, currentIndex-1), input.subList(currentIndex+1, input.size))
+}
+
+fun obtainStacks(stackInput: List<String>): Array<Stack<String>> {
+    val stacks = Array(9) { Stack<String>() }
+
+    stackInput.map { parseStackRow(it) }.reversed().forEach {
+        it.forEach { pair ->
+            stacks[pair.second-1].push(pair.first.toString())
+        }
+    }
+
+    return stacks
 }
 
 fun parseStackRow(input: String): List<Pair<Char, Int>> {
